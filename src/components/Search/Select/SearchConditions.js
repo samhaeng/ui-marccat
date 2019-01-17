@@ -9,6 +9,7 @@ import { Select } from '@folio/stripes/components';
 
 export default function SearchConditions({ ...props }) {
   const { rest } = props;
+  const { id } = props;
   const options = [
     { label: 'Browse', value: 'BROWSE' },
     { label: 'Begins with', value: 'START' },
@@ -17,8 +18,8 @@ export default function SearchConditions({ ...props }) {
   ];
   return (
     <Field
-      name="selectCondition"
-      id="selectCondition"
+      name={'selectCondition' + id}
+      id={'selectCondition' + id}
       placeholder="Select condition..."
       component={Select}
       dataOptions={options}

@@ -18,7 +18,7 @@ import { FormattedMessage } from 'react-intl';
 import { includes } from 'lodash';
 import ResetButton from '../Filter/ResetButton';
 import type { Props } from '../../../core';
-import { SearchIndexes, SearchConditions, FiltersContainer } from '..';
+import { SearchIndexes, SearchConditions, FiltersContainer, Bracket } from '..';
 import { ActionTypes } from '../../../redux/actions/Actions';
 import { findYourQuery } from '../Filter';
 import { remapFilters } from '../../../utils/Mapper';
@@ -61,46 +61,62 @@ class SearchPanel extends React.Component<P, {}> {
 
   handleKeyDown(e) {
     let { isBrowseRequested } = this.state;
+    const { counter } = this.state;
     if (e.charCode === 13 || e.key === 'Enter') {
       e.preventDefault();
       const { store, store: { getState }, dispatch, router } = this.props;
       store.dispatch({ type: ActionTypes.CLOSE_PANELS, closePanels: true });
       store.dispatch({ type: ActionTypes.CLOSE_ASSOCIATED_DETAILS, openPanel: false });
-      const inputValue = '"' + e.target.form[2].defaultValue + '"';
       isBrowseRequested = false;
       let baseQuery;
       let indexForQuery;
       let conditionFilter;
       let indexFilter;
+      let operatorValue;
+      let totalQuery;
       const form = getState().form.searchForm;
       const state = getState();
       if (form.values) {
-        if (form.values.selectIndexes) {
-          indexFilter = form.values.selectIndexes;
+        for (let i = 0; i < counter.length; i++) {
+          const operatorIndex = i - 1;
+          const selectIndexesName = 'selectIndexes' + i;
+          const selectConditionName = 'selectCondition' + i;
+          const inputValueName = 'searchTextArea' + i;
+          const operatorName = 'operatorSelect' + operatorIndex;
+          const inputValue = form.values[inputValueName];
+          if (form.values[operatorName]) {
+            operatorValue = form.values[operatorName];
+          } else {
+            operatorValue = 'OR';
+          }
+          if (form.values[selectIndexesName]) {
+            indexFilter = form.values[selectIndexesName];
+          }
+          if (form.values[selectConditionName]) {
+            conditionFilter = form.values[selectConditionName];
+            indexForQuery = findYourQuery[indexFilter.concat('-').concat(conditionFilter)];
+            baseQuery = indexForQuery + inputValue;
+            baseQuery = (conditionFilter === 'MATCH') ? baseQuery + '!' : baseQuery;
+          }
+          if (i === 0) {
+            totalQuery = ' ( ' + baseQuery + ' ) ';
+          } else {
+            totalQuery = totalQuery + operatorValue + ' ( ' + baseQuery + ' ) ';
+          }
         }
-        if (form.values.selectCondition) {
-          conditionFilter = form.values.selectCondition;
-          indexForQuery = findYourQuery[indexFilter.concat('-').concat(conditionFilter)];
-          baseQuery = indexForQuery + inputValue;
-          baseQuery = (conditionFilter === 'MATCH') ? baseQuery + '!' : baseQuery;
-        } else {
-          baseQuery = inputValue;
-        }
-      } else {
-        baseQuery = inputValue;
       }
 
-      let bibQuery = baseQuery;
-      const authQuery = baseQuery;
+      let bibQuery = totalQuery;
+      const authQuery = '';
       this.transitionToParams('q', bibQuery);
 
       if (state.marccat.filter && state.marccat.filter.filters) {
         const { languageFilter, formatType } = remapFilters(state.marccat.filter.filters);
         if (languageFilter && languageFilter.length) {
-          bibQuery += ' AND ( ' + getLanguageFilterQuery(languageFilter) + ' ) ';
+          bibQuery = '( ' + bibQuery + ' ) AND ( ' + getLanguageFilterQuery(languageFilter) + ' ) ';
         }
         if (formatType && formatType.length) {
-          bibQuery += ' AND ( ' + getFormatFilterQuery(formatType) + ' ) ';
+          bibQuery = '( ' + bibQuery + ' ) AND ( ' + getFormatFilterQuery(formatType) + ' ) ';
         }
       }
       if (conditionFilter === 'BROWSE') {
@@ -191,7 +207,12 @@ class SearchPanel extends React.Component<P, {}> {
               <form name="searchForm" onKeyDown={this.handleKeyDown} onChange={this.handleOnChange} key={idx}>
                 <Row>
                   <Col xs={1}>
-                    <div className={styles.leftBracket} />
+                    <Bracket
+                      bracketType="Open"
+                      id={idx}
+                      bracketStyle={styles.leftBracket}
+                      value={false}
+                    />
                   </Col>
                   <Col xs={10} className={styles.forwardBracket}>
                     <Row>
@@ -200,6 +221,7 @@ class SearchPanel extends React.Component<P, {}> {
                           <SearchIndexes
                             marginBottom0
                             {...this.props}
+                            id={idx}
                           />
                         </div>
                       </Col>
@@ -208,6 +230,7 @@ class SearchPanel extends React.Component<P, {}> {
                       <Col xs={12}>
                         <SearchConditions
                           {...this.props}
+                          id={idx}
                         />
                       </Col>
                     </Row>
@@ -218,29 +241,29 @@ class SearchPanel extends React.Component<P, {}> {
                             fullWidth
                             component={SearchField}
                             placeholder="Search..."
-                            name="searchTextArea"
-                            id="searchTextArea"
+                            name={'searchTextArea' + idx}
+                            id={'searchTextArea' + idx}
                           />
                         </div>
                       </Col>
                     </Row>
                     {idx !== (counter.length - 1) &&
-                    <Row>
-                      <Col xs={10}>
-                        <OperatorSelect
-                          {...this.props}
-                          name="operatorSelect"
-                          id="operatorSelect"
-                        />
-                      </Col>
-                      <Col xs={2} style={{ display: 'flex', marginTop: '14px' }}>
-                        <IconButton
-                          icon="trash"
-                          size="small"
-                          onClick={this.handleRemoveSearchForm(idx)}
-                        />
-                      </Col>
-                    </Row>
+                      <Row>
+                        <Col xs={10}>
+                          <OperatorSelect
+                            {...this.props}
+                            name={'operatorSelect' + idx}
+                            id={'operatorSelect' + idx}
+                          />
+                        </Col>
+                        <Col xs={2} style={{ display: 'flex', marginTop: '14px' }}>
+                          <IconButton
+                            icon="trash"
+                            size="small"
+                            onClick={this.handleRemoveSearchForm(idx)}
+                          />
+                        </Col>
+                      </Row>
                     }
                     <Row>
                       <Col xs={12}>
@@ -256,7 +279,12 @@ class SearchPanel extends React.Component<P, {}> {
                     </Row>
                   </Col>
                   <Col xs={1}>
-                    <div className={styles.rightBracket} />
+                    <Bracket
+                      bracketType="Close"
+                      id={idx}
+                      bracketStyle={styles.rightBracket}
+                      value={false}
+                    />
                   </Col>
                 </Row>
               </form>

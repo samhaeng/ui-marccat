@@ -9,6 +9,7 @@ import { Select } from '@folio/stripes/components';
 
 export default function SearchIndexes({ ...props }) {
   const { rest } = props;
+  const { id } = props;
   const options = [
     { label: 'Title', value: 'TITLE' },
     { label: 'Name: All', value: 'NAME' },
@@ -62,8 +63,8 @@ export default function SearchIndexes({ ...props }) {
 
   return (
     <Field
-      id="selectIndexes"
-      name="selectIndexes"
+      id={'selectIndexes' + id}
+      name={'selectIndexes' + id}
       placeholder="Select a field..."
       component={Select}
       dataOptions={options}
