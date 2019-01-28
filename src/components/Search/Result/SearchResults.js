@@ -226,7 +226,8 @@ export class SearchResults extends React.Component<P, {}> {
     if ((bibliographicResults === undefined && authorityResults === undefined)
       || (bibliographicResults && (bibliographicResults.length === undefined
         || bibliographicResults.length === 0)
-        && (authorityResults && (authorityResults.length === undefined || authorityResults.length === 0)))) {
+        && (authorityResults && 
+          (authorityResults.length === undefined || authorityResults.length === 0)))) {
       noResults = true;
       detailPanelIsVisible = false;
     } else {

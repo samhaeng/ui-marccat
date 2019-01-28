@@ -11,6 +11,7 @@ import { EMPTY_MESSAGE, SPACED_STRING } from '../../../utils/Constant';
 import { ActionTypes } from '../../../redux/actions/Actions';
 import { decamelizify } from '../Utils/MarcUtils';
 import style from '../Style/style.css';
+import { FormReducer } from '../../../redux/helpers/StoreReducer';
 
 
 type P = {
@@ -63,9 +64,9 @@ export default class MarcLeader extends React.Component<P, {
   }
 
   handleChange = () => {
-    const { store: { getState } } = this.props;
+    const { store } = this.props;
     const { leader } = this.state;
-    const formData = getState().form.bibliographicRecordForm.values;
+    const formData = FormReducer.resolve(store, 'bibliographicRecordForm');
     Object.keys(formData)
       .forEach((k) => {
         if (k.split('-')[0] === 'Leader') {
