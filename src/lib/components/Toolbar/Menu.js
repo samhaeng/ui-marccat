@@ -4,7 +4,8 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 import * as React from 'react';
-import { PaneMenu, IconButton, IfPermission, Button } from '@folio/stripes/components';
+import { PaneMenu, IconButton, Button } from '@folio/stripes/components';
+import { IfPermission } from '@folio/stripes/core';
 import classNames from 'classnames';
 
 type ToolbarMenuProps = {
