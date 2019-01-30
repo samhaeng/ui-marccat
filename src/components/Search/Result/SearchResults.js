@@ -67,8 +67,9 @@ export class SearchResults extends React.Component<P, {}> {
   }
 
   renderTemplateRoute = () => {
-    const { dispatch, router } = this.props;
+    const { dispatch, router, toggleFilterPane } = this.props;
     dispatch({ type: ActionTypes.TEMPLATE_GET_BY_ID, query: 408 });
+    toggleFilterPane();
     router.push(`/marccat/record/template?templateId=${408}`);
   };
 
