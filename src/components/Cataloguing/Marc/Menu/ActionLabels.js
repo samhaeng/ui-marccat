@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-//
+// @flow
 import * as React from 'react';
 import { MenuItem } from '@folio/stripes/components';
 import { Localize } from '../../../../shared/utils/Function';
@@ -9,15 +9,15 @@ import style from '../../../../shared/lib/Style/Dropdown.css';
 export default ({ ...props }) => {
   const getLabels = () => {
     return [{
-      label: Localize({ key: 'cataloging.actions.add.field.below' }),
-      shortcut: Localize({ key: 'cataloging.actions.add.field.below.shortcut' }),
-      onClick: props.onAddAbove,
-    },
-    {
       label: Localize({ key: 'cataloging.actions.add.field.above' }),
       shortcut: Localize({ key: 'cataloging.actions.add.field.above.shortcut' }),
-      onClick: props.onAdd,
+      onClick: props.onAddAbove,
     },
+    // {
+    //   label: Localize({ key: 'cataloging.actions.add.field.below' }),
+    //   shortcut: Localize({ key: 'cataloging.actions.add.field.below.shortcut' }),
+    //   onClick: props.onAdd,
+    // },
     {
       label: Localize({ key: 'cataloging.actions.copy' }),
       shortcut: Localize({ key: 'cataloging.actions.copy.shortcut' }),

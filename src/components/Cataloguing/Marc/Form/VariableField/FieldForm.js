@@ -12,7 +12,7 @@ import {
   IconButton,
   HotKeys,
   MultiColumnList,
-  Row
+  Row,
 } from '@folio/stripes/components';
 import EditableItem from './EditableItem';
 import ActionsMenuButton from '../../Menu/ActionsMenu';
@@ -69,14 +69,13 @@ class FieldForm extends React.Component {
       currentIndex: 0,
     };
 
-
     this.RenderItems = this.RenderItems.bind(this);
     this.setError = this.setError.bind(this);
     this.buildStatusArray = this.buildStatusArray.bind(this);
     this.getColumnWidths = this.getColumnWidths.bind(this);
     this.getVisibleColumns = this.getVisibleColumns.bind(this);
     this.getReadOnlyColumns = this.getReadOnlyColumns.bind(this);
-    this.onAdd = this.onAdd.bind(this);
+    // this.onAdd = this.onAdd.bind(this);
     this.onAddAbove = this.onAddAbove.bind(this);
     this.onCancel = this.onCancel.bind(this);
     this.onResetAll = this.onResetAll.bind(this);
@@ -91,46 +90,19 @@ class FieldForm extends React.Component {
     this.onViewMarkDocs = this.onViewMarkDocs.bind(this);
     this.onLookup = this.onLookup.bind(this);
 
-    this.keys = {
-      'add' : ['enter'],
-      'addAbove' : ['alt+enter'],
-      'cleanField' : ['delete'],
-      'cleanAll' : ['backspace'],
-      'duplicate' : ['CTRL+D'],
-      'copy' : ['CTRL+C'],
-      'cut' : ['CTRL+X'],
-      'paste' : ['CTRL+V'],
-      'undo' : ['CTRL+Z'],
-      'redo' : ['CTRL+SHIFT+Z'],
-      'lookup' : ['CTRL+SHIFT+L'],
-      'onViewMarkDocs': ['CTRL+SHIFT+W']
-    };
-
-    this.handlers = {
-      'add' : this.onAddAbove,
-      'addAbove' : this.onAdd,
-      'cleanField' : this.onCancel,
-      'cleanAll' : this.onResetAll,
-      'duplicate' : this.onDuplicate,
-      'copy' : this.onCopy,
-      'cut' : this.onCut,
-      'paste' : this.onPaste,
-      'undo' : this.onUndo,
-      'redo' : this.onRedo,
-      'lookup' : this.onLookup,
-      'onViewMarkDocs': this.onViewMarkDocs
-    };
-
     if (props.id) {
       this.marcTagRowTestingId = props.id;
     } else if (props.label) {
-      this.marcTagRowTestingId = props.label.replace(/\s/, '\u001f').toLowerCase();
+      this.marcTagRowTestingId = props.label
+        .replace(/\s/, '\u001f')
+        .toLowerCase();
     } else {
       this.marcTagRowTestingId = uniqueId();
     }
   }
 
-  componentWillReceiveProps(nextProps) { // eslint-disable-line react/no-deprecated
+  // eslint-disable-next-line react/no-deprecated
+  componentWillReceiveProps(nextProps) {
     const { initialValues } = this.props;
     if (!isEqual(initialValues, nextProps.initialValues)) {
       this.setState({
@@ -160,19 +132,17 @@ class FieldForm extends React.Component {
    *
    * @param {*} fields
    */
-  onAdd(fields) {
-    const { itemTemplate } = this.props;
-    const item = { ...itemTemplate };
-    fields.unshift(item);
-    this.setState((curState) => {
-      const newState = cloneDeep(curState);
-      if (newState.status.length === 0 && fields.length > 0) {
-        newState.status = this.buildStatusArray();
-      }
-      newState.status.unshift({ editing: true, error: false });
-      return newState;
-    });
-  }
+  // onAdd(fields) {
+  //   const { itemTemplate } = this.props;
+  //   const { status } = this.state;
+  //   const newStatus = [...status];
+  //   newStatus.push({ editing: true, error: false });
+  //   this.setState({
+  //     status: newStatus,
+  //   });
+  //   const item = { ...itemTemplate };
+  //   fields.push(item);
+  // }
 
   /**
    *
@@ -180,16 +150,14 @@ class FieldForm extends React.Component {
    */
   onAddAbove(fields) {
     const { itemTemplate } = this.props;
-    const item = { ...itemTemplate };
-    fields.push(item);
-    this.setState((curState) => {
-      const newState = cloneDeep(curState);
-      if (newState.status.length === 0 && fields.length > 0) {
-        newState.status = this.buildStatusArray();
-      }
-      newState.status.push({ editing: true, error: false });
-      return newState;
+    const { status } = this.state;
+    const newStatus = [...status];
+    newStatus.unshift({ editing: true, error: false });
+    this.setState({
+      status: newStatus,
     });
+    const item = { ...itemTemplate };
+    fields.unshift(item);
   }
 
   /**
@@ -272,7 +240,7 @@ class FieldForm extends React.Component {
   onDuplicate(fields, index) {
     const item = fields.get(index);
     fields.unshift(item);
-    this.setState((curState) => {
+    this.setState(curState => {
       const newState = cloneDeep(curState);
       if (newState.status.length === 0 && fields.length > 0) {
         newState.status = this.buildStatusArray();
@@ -297,7 +265,7 @@ class FieldForm extends React.Component {
       () => {
         this.toggleEdit(index);
       },
-      () => this.setError(index, 'Error on save data'),
+      () => this.setError(index, 'Error on save data')
     );
   }
 
@@ -322,13 +290,13 @@ class FieldForm extends React.Component {
     Promise.resolve(res).then(
       () => {
         fields.remove(index);
-        this.setState((curState) => {
+        this.setState(curState => {
           const newState = cloneDeep(curState);
           newState.status.splice(index, 1);
           return newState;
         });
       },
-      () => this.setError(index, 'Error on removing data'),
+      () => this.setError(index, 'Error on removing data')
     );
   }
 
@@ -347,7 +315,7 @@ class FieldForm extends React.Component {
    * @param {*} errorMsg
    */
   setError(index, errorMsg) {
-    this.setState((curState) => {
+    this.setState(curState => {
       const newState = cloneDeep(curState);
       newState.status[index].error = errorMsg;
       newState.lastAction = new Date().getTime();
@@ -356,21 +324,25 @@ class FieldForm extends React.Component {
   }
 
   getColumnWidths() {
-    const { columnWidths } = this.props;
-    if (!columnWidths) {
-      const visibleColumns = this.getVisibleColumns();
-      const totalColumns = visibleColumns.length - 1;
-      const staticWidth = 80 / totalColumns;
-      const widthsObject = {};
-      visibleColumns.forEach((f) => {
-        if (f !== 'actions') {
-          widthsObject[f] = `${staticWidth}%`;
+    const visibleColumns = this.getVisibleColumns();
+    const totalColumns = visibleColumns.length - 1;
+    const staticWidth = 80 / totalColumns;
+    const widthsObject = {};
+    visibleColumns.forEach(f => {
+      if (f !== 'actions') {
+        if (f === 'variableField.code') {
+          widthsObject[f] = '10%';
+        } else if (f === 'variableField.ind1') {
+          widthsObject[f] = '15%';
+        } else if (f === 'variableField.ind2') {
+          widthsObject[f] = '15%';
+        } else if (f === 'variableField.displayValue') {
+          widthsObject[f] = '40%';
         }
-      });
-      widthsObject.actions = '20%';
-      return widthsObject;
-    }
-    return columnWidths;
+      }
+    });
+    widthsObject.actions = '20%';
+    return widthsObject;
   }
 
   getVisibleColumns() {
@@ -392,7 +364,7 @@ class FieldForm extends React.Component {
     if (status.length === 0) {
       this.buildStatusArray();
     }
-    this.setState((curState) => {
+    this.setState(curState => {
       const newState = cloneDeep(curState);
       if (newState.status.length === 0) {
         newState.status = this.buildStatusArray();
@@ -414,7 +386,13 @@ class FieldForm extends React.Component {
     rowProps,
   }) => {
     const { status } = this.state;
-    const { columnMapping, actionSuppression, actionProps, additionalFields, fieldComponents } = this.props;
+    const {
+      columnMapping,
+      actionSuppression,
+      actionProps,
+      additionalFields,
+      fieldComponents,
+    } = this.props;
     let isEditing;
     let hasError;
     if (status.length > 0) {
@@ -451,10 +429,16 @@ class FieldForm extends React.Component {
         {...rowProps}
       />
     );
-  }
+  };
 
   getActions = (fields, item) => {
-    const { actionProps, actionSuppression, pristine, submitting, invalid } = this.props;
+    const {
+      actionProps,
+      actionSuppression,
+      pristine,
+      submitting,
+      invalid,
+    } = this.props;
     const { status } = this.state;
 
     if (status[item.rowIndex].editing) {
@@ -465,7 +449,9 @@ class FieldForm extends React.Component {
             marginBottom0
             id={`clickable-save-${this.marcTagRowTestingId}-${item.rowIndex}`}
             onClick={() => this.onSave(fields, item.rowIndex)}
-            {...(typeof actionProps.save === 'function' ? actionProps.save(item) : {})}
+            {...(typeof actionProps.save === 'function'
+              ? actionProps.save(item)
+              : {})}
           >
             Save
           </Button>
@@ -473,7 +459,9 @@ class FieldForm extends React.Component {
             marginBottom0
             id={`clickable-cancel-${this.marcTagRowTestingId}-${item.rowIndex}`}
             onClick={() => this.onCancel(fields, item.rowIndex)}
-            {...(typeof actionProps.cancel === 'function' ? actionProps.cancel(item) : {})}
+            {...(typeof actionProps.cancel === 'function'
+              ? actionProps.cancel(item)
+              : {})}
           >
             Cancel
           </Button>
@@ -482,7 +470,7 @@ class FieldForm extends React.Component {
     }
     return (
       <div style={{ display: 'flex' }}>
-        {!actionSuppression.edit(item) &&
+        {!actionSuppression.edit(item) && (
           <FormattedMessage id="stripes-components.editThisItem">
             {ariaLabel => (
               <IconButton
@@ -491,12 +479,14 @@ class FieldForm extends React.Component {
                 id={`clickable-edit-${this.marcTagRowTestingId}-${item.rowIndex}`}
                 aria-label={ariaLabel}
                 onClick={() => this.onEdit(item.rowIndex)}
-                {...(typeof actionProps.edit === 'function' ? actionProps.edit(item) : {})}
+                {...(typeof actionProps.edit === 'function'
+                  ? actionProps.edit(item)
+                  : {})}
               />
             )}
           </FormattedMessage>
-        }
-        {!actionSuppression.delete(item) &&
+        )}
+        {!actionSuppression.delete(item) && (
           <FormattedMessage id="stripes-components.deleteThisItem">
             {ariaLabel => (
               <IconButton
@@ -505,11 +495,13 @@ class FieldForm extends React.Component {
                 id={`clickable-delete-${this.marcTagRowTestingId}-${item.rowIndex}`}
                 aria-label={ariaLabel}
                 onClick={() => this.onDelete(fields, item.rowIndex)}
-                {...(typeof actionProps.delete === 'function' ? actionProps.delete(item) : {})}
+                {...(typeof actionProps.delete === 'function'
+                  ? actionProps.delete(item)
+                  : {})}
               />
             )}
           </FormattedMessage>
-        }
+        )}
       </div>
     );
   };
@@ -518,15 +510,50 @@ class FieldForm extends React.Component {
     const { currentIndex } = this.state;
     const { formatter, label, isEmptyMessage, onToggle } = this.props;
 
-    const cellFormatters = Object.assign({}, formatter, { actions: item => this.getActions(fields, item) });
+    const cellFormatters = Object.assign({}, formatter, {
+      actions: item => this.getActions(fields, item),
+    });
+
+    const keys = {
+      addAbove: ['ctrl+enter'],
+      // add: ['alt+enter'],
+      cleanField: ['shift+backspace'],
+      cleanAll: ['shift+delete'],
+      duplicate: ['ctrl+d'],
+      copy: ['ctrl+c'],
+      cut: ['ctrl+x'],
+      paste: ['ctrl+v'],
+      undo: ['ctrl+z'],
+      redo: ['ctrl+shift+z'],
+      lookup: ['ctrl+shift+l'],
+      onViewMarkDocs: ['ctrl+shift+w'],
+    };
+
+    const handlers = {
+      addAbove: () => this.onAddAbove(fields),
+      // add: () => this.onAdd(fields),
+      cleanField: () => this.onCancel(fields, currentIndex),
+      cleanAll: () => this.onResetAll(),
+      duplicate: () => this.onDuplicate(fields, currentIndex),
+      copy: () => this.onCopy(fields, currentIndex),
+      cut: () => this.onCut(fields, currentIndex),
+      paste: () => this.onPaste(fields, currentIndex),
+      undo: () => this.onUndo(fields, currentIndex),
+      redo: () => this.onRedo(fields, currentIndex),
+      lookup: () => this.onLookup(fields, currentIndex),
+      onViewMarkDocs: () => this.onViewMarkDocs(fields, currentIndex)
+    };
+
     return (
       <HotKeys
-        keyMap={this.keys}
-        handlers={{ 'add': () => this.onAdd(fields) }}
+        keyMap={keys}
+        handlers={handlers}
       >
         <Row between="xs" className={style.editableListFormHeader}>
           <Col xs>
-            <Headline size="medium" margin="none">{label}</Headline>
+            <Headline size="medium" margin="none">
+              {label}
+            </Headline>
           </Col>
           <Col xs>
             <Row end="xs" className={style.fr}>
@@ -534,7 +561,7 @@ class FieldForm extends React.Component {
                 <ActionsMenuButton
                   {...this.props}
                   onClick={onToggle}
-                  onAdd={() => this.onAdd(fields)}
+                  // onAdd={() => this.onAdd(fields)}
                   onAddAbove={() => this.onAddAbove(fields)}
                   onDuplicate={() => this.onDuplicate(fields, currentIndex)}
                   onCancel={() => this.onCancel(fields, currentIndex)}
@@ -563,7 +590,7 @@ class FieldForm extends React.Component {
             <MultiColumnList
               {...this.props}
               visibleColumns={this.getVisibleColumns()}
-              contentData={fields.getAll()}
+              contentData={JSON.parse(JSON.stringify(fields.getAll()))}
               rowFormatter={this.VariableFieldRowFormatter}
               rowProps={{ fields }}
               formatter={cellFormatters}
@@ -582,7 +609,11 @@ class FieldForm extends React.Component {
     const { lastAction } = this.state;
     return (
       <form>
-        <FieldArray name="items" component={this.RenderItems} toUpdate={lastAction} />
+        <FieldArray
+          name="items"
+          component={this.RenderItems}
+          toUpdate={lastAction}
+        />
       </form>
     );
   }

@@ -1,17 +1,18 @@
 /* eslint-disable no-sparse-arrays */
-//
+// @flow
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Pane, Icon, MultiColumnList } from '@folio/stripes/components';
 import { AppIcon } from '@folio/stripes-core';
+import type { Props } from '../../../../flow/types.js.flow';
 import { resultsFormatter, columnMapper, columnWidthMapper, renderColumn } from '../../../../shared/utils/Formatter';
 import { injectProps, ActionMenu, EmptyMessage, NoResultsMessage } from '../../../../shared';
 import { ACTION } from '../../../../redux/actions/Actions';
 import * as C from '../../../../config/constants';
 
 
-class SearchResultPane extends React.Component {
-  constructor(props) {
+class SearchResultPane extends React.Component<Props, {}> {
+  constructor(props: Props) {
     super(props);
     this.state = {
     };
@@ -38,13 +39,13 @@ class SearchResultPane extends React.Component {
       messageNoContent,
       containerMarcJSONRecords,
       store,
-      isLoadMore
+      isLoadMore,
     } = this.props;
+
     return (
       isLoadMore === 'N' || isLoadMore === undefined ?
         <Pane
           padContent={(containerMarcJSONRecords.length > 0) || isFetching}
-          autosize="true"
           defaultWidth="fill"
           actionMenu={ActionMenu}
           paneTitle={translate({ id: 'ui-marccat.search.record' })}
@@ -67,23 +68,23 @@ class SearchResultPane extends React.Component {
                 <NoResultsMessage {...this.props} /> :
                 (isReady) ?
                   <MultiColumnList
+                    autosize
                     id="data-test-search-results-table"
                     defaultWidth="fill"
+                    columnWidths={columnWidthMapper(bibsOnly, autOnly)}
                     rowMetadata={['001', 'recordView']}
                     onRowClick={handleDetails}
                     contentData={mergedRecord}
                     formatter={resultsFormatter(bibsOnly, autOnly)}
                     columnMapping={columnMapper(bibsOnly, autOnly)}
                     visibleColumns={renderColumn(bibsOnly, autOnly)}
-                    columnWidths={columnWidthMapper(bibsOnly, autOnly)}
                   /> : <EmptyMessage {...this.props} />
           }
         </Pane> : (isLoadMore === 'Y') &&
         <Pane
           padContent={(containerMarcJSONRecords.length > 0)}
-          autosize="true"
-          defaultWidth="fill"
           actionMenu={ActionMenu}
+          defaultWidth="fill"
           paneTitle={translate({ id: 'ui-marccat.search.record' })}
           paneSub={message}
           appIcon={<AppIcon app={C.META.ICON_TITLE} />}
@@ -99,21 +100,23 @@ class SearchResultPane extends React.Component {
         >
           <MultiColumnList
             id="data-test-search-results-table"
+            autosize
             defaultWidth="fill"
+            columnWidths={columnWidthMapper(bibsOnly, autOnly)}
             rowMetadata={['001', 'recordView']}
             onRowClick={handleDetails}
             contentData={mergedRecord}
-            columnWidths={columnWidthMapper(bibsOnly, autOnly)}
             formatter={resultsFormatter(bibsOnly, autOnly)}
             columnMapping={columnMapper(bibsOnly, autOnly)}
             visibleColumns={renderColumn(bibsOnly, autOnly)}
           />
         </Pane>
     );
+
   }
 }
 export default (connect(
   ({ marccat: { search } }) => ({
-    isLoadMore: search.moreData
+    isLoadMore: search.moreData,
   }),
 )(injectProps(SearchResultPane)));
